@@ -22,6 +22,7 @@ def main(line_token: str):
 
     schedule.every(1).hours.do(connect, line_token=line_token)
     while(True):
+        schedule.run_pending()
         time.sleep(1)
 
 

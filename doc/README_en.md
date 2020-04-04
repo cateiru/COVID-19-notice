@@ -1,4 +1,4 @@
-# COVID-19-notice
+# 🦠 COVID-19 to LINE
 
 ![python](https://img.shields.io/github/pipenv/locked/python-version/yuto51942/COVID-19-notice)
 ![last_commit](https://img.shields.io/github/last-commit/yuto51942/COVID-19-notice)

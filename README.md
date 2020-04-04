@@ -33,7 +33,7 @@ pipenv install
 pipenv install --system --deploy
 ```
 
-## LINE notifyの取得
+## 🔐 LINE notifyの取得
 
 [\[超簡単\]LINE notify を使ってみる](https://qiita.com/iitenkida7/items/576a8226ba6584864d95)
 

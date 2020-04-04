@@ -7,8 +7,12 @@ verify_ssl = true
 mypy = "*"
 pylint = "*"
 flake8 = "*"
+autopep8 = "*"
 
 [packages]
+requests = "*"
+click = "*"
+schedule = "*"
 
 [requires]
 python_version = "3.6"

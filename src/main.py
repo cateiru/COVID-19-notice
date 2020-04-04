@@ -55,7 +55,7 @@ def connect(line_token: str):
         text = f'''
 {day_obj.month}月{day_obj.day}日 更新
 
-感染者: {body['positive']}人 (前日比: {difference})
+感染者: {body['positive']}人 (前日比: {difference:+})
   - 退院: {body['discharge']}人
   - 入院中: {body['hospitalize']}人
     * 軽中度・無症状: {body['mild']}人

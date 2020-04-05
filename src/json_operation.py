@@ -1,20 +1,23 @@
+'''
+Copyright 2020 YutoWatanabe
+'''
 import json
-from typing import Dict
+from typing import Any
 
 
-def json_write(body: str, save_file_path: str) -> None:
+def json_write(body: Any, save_file_path: str) -> None:
     '''
     Jsonファイルに保存する
 
     Args:
-        body (str): Jsonの内容
+        body (Any): Jsonの内容
         save_dir (str): 保存するファイルパス
     '''
     with open(save_file_path, mode='w') as contents:
         json.dump(body, contents, indent=4, ensure_ascii=False)
 
 
-def json_read(save_file_path: str) -> Dict[str, int]:
+def json_read(save_file_path: str) -> Any:
     '''
     Jsonファイルを読み込む
 
@@ -22,7 +25,7 @@ def json_read(save_file_path: str) -> Dict[str, int]:
         save_file_path (str): 保存するファイルパス
 
     Returns:
-        Dict[str, int]: Jsonの内容
+        Any: Jsonの内容
     '''
     with open(save_file_path, mode='r') as contents:
         body = json.load(contents)

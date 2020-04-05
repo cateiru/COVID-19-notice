@@ -1,3 +1,6 @@
+'''
+Copyright 2020 YutoWatanabe
+'''
 import datetime
 import os
 import time
@@ -29,7 +32,7 @@ def main(line_token: str):
     connect(line_token, save_dir)
 
     schedule.every(1).hours.do(connect, line_token=line_token)
-    while(True):
+    while(True):  # pylint: disable=C0325
         schedule.run_pending()
         time.sleep(1)
 
@@ -100,21 +103,21 @@ def make_graph(daily: List[Dict[str, int]], image_save_path: str) -> None:
         daily (List[Dict[str, int]]): 日別感染者数のデータ
         image_save_path (str): 出力する画像を保存するパス
     '''
-    x = []
-    y = []
+    x_value = []
+    y_value = []
 
     for element in daily:
         day = datetime.datetime.strptime(str(element['day']), r'%Y%m%d')
-        x.append(f'{day.month}/{day.day}')
-        y.append(element['infected'])
+        x_value.append(f'{day.month}/{day.day}')
+        y_value.append(element['infected'])
 
-    x_loc = np.array(range(len(y)))
+    x_loc = np.array(range(len(y_value)))
 
     pyplot.title('Daily infections')
     pyplot.xlabel('date')
     pyplot.ylabel('people')
-    pyplot.bar(x_loc, y, color='#fa6843')
-    pyplot.xticks(x_loc, x)
+    pyplot.bar(x_loc, y_value, color='#fa6843')
+    pyplot.xticks(x_loc, x_value)
 
     pyplot.savefig(image_save_path)
 
@@ -150,4 +153,4 @@ def post_line(line_token: str, text: str, image_save_path: str):
 
 
 if __name__ == "__main__":
-    main()
+    main()  # pylint: disable=E1120

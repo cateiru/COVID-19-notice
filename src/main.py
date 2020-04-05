@@ -39,7 +39,7 @@ def main(line_token: str):
 
 def connect(line_token: str, save_dir: str):
     '''
-    複数のスプリントを実行させる。
+    複数のスプリクトを実行させる。
     - Today total
     - Now total
 
@@ -129,19 +129,19 @@ def now_total(line_token: str, save_dir: str):
     save_statistics = os.path.join(save_dir, 'now_infected.json')
 
     if os.path.isfile(save_file_path):
-        old_body = json_read(save_file_path)
+        old_patient = json_read(save_file_path)
         is_ratio = True
     else:
-        old_body = {'patient': 0}
+        old_patient = {'patient': 0}
         is_ratio = False
 
     total_patient: int = 0
-    for element in body:
-        total_patient += int(element['cases'])
+    for body_metadata in body:
+        total_patient += int(body_metadata['cases'])
 
-    if total_patient != old_body['patient']:
+    if total_patient != old_patient['patient']:
         if is_ratio:
-            difference = total_patient - old_body['patient']
+            difference = total_patient - old_patient['patient']
         else:
             difference = 0
 

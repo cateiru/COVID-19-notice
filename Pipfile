@@ -13,6 +13,8 @@ autopep8 = "*"
 requests = "*"
 click = "*"
 schedule = "*"
+matplotlib = "*"
+numpy = "*"
 
 [requires]
 python_version = "3.6"

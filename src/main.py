@@ -31,7 +31,9 @@ def main(line_token: str):
 
     connect(line_token, save_dir)
 
-    schedule.every(1).hours.do(connect, line_token=line_token, save_dir=save_dir)
+    for hour in range(6, 22):
+        schedule.every().day.at(f'{hour:02d}:00').do(connect, line_token=line_token, save_dir=save_dir)
+    schedule.every().day.at(f'00:00').do(connect, line_token=line_token, save_dir=save_dir)
     while(True):  # pylint: disable=C0325
         schedule.run_pending()
         time.sleep(1)

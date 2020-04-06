@@ -122,14 +122,14 @@ def now_total(line_token: str, save_dir: str):
         old_patient = json_read(save_file_path)
         is_ratio = True
     else:
-        old_patient = {'patient': 0}
+        old_patient = {'patient': 0, 'before': 0}
         is_ratio = False
 
     total_patient: int = 0
     for body_metadata in body:
         total_patient += int(body_metadata['cases'])
 
-    if total_patient != old_patient['patient']:
+    if total_patient != old_patient['before']:
         if is_ratio:
             difference = total_patient - old_patient['patient']
         else:
@@ -143,11 +143,14 @@ def now_total(line_token: str, save_dir: str):
 
         text = f'\n現在の感染者数: {total_patient}人\n(前日比: {difference:+})'
         post_line(line_token, text, None)
-        save_body = {'patient': total_patient}
+        save_body_reset = {'patient': total_patient, 'before': total_patient}
+        old_patient['before'] = total_patient
 
         json_write(now, save_statistics)
         if datetime.datetime.now().strftime(r'%H') == '00':
-            json_write(save_body, save_file_path)
+            json_write(save_body_reset, save_file_path)
+        else:
+            json_write(old_patient, save_file_path)
 
 
 if __name__ == "__main__":

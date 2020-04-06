@@ -18,7 +18,8 @@ from json_operation import json_read, json_write
 @click.option('--line-token', 'line_token', prompt=True, hide_input=True, help='line access token.')
 def main(line_token: str):
     '''
-    1時間ごとに動作させる
+    - 現在の感染者数: 1時間ごとに動作させる
+    - 日別統計: 毎日00:00に動作させる
 
     Args:
         line_token (str): LINE notifyのアクセストークン
@@ -31,8 +32,10 @@ def main(line_token: str):
     today_total(line_token, save_dir)
     now_total(line_token, save_dir)
 
+    # 実行するタイミングを変えたい場合はここを編集
     schedule.every().day.at('00:00').do(today_total, line_token=line_token, save_dir=save_dir)
-    schedule.every().hour.do(now_total, line_token=line_token, save_dir=save_dir)
+    schedule.every().minute.at(':00').do(now_total, line_token=line_token, save_dir=save_dir)
+    # ここまで
 
     while(True):  # pylint: disable=C0325
         schedule.run_pending()
@@ -79,7 +82,7 @@ def today_total(line_token: str, save_dir: str):
         })
 
         text = f'''
-{day_obj.month}月{day_obj.day}日 更新
+{day_obj.month}月{day_obj.day}日
 
 ☣感染者: {body['positive']}人 (前日比: {difference:+})
   - 退院: {body['discharge']}人

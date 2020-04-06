@@ -58,6 +58,38 @@ python src/main.py
 nohup python3 src/main.py --line-token [token] &
 ```
 
+## ✅ 静的解析
+
+- Pylint
+- mypy
+- flake8
+
+```bash
+pipenv install --dev
+pipenv shell
+sh ./analysis.sh
+```
+
+PRを出す際にはすべてのツールのチェックを成功させてください。
+
+## 🔁 実行するタイミングの変更
+
+現在、`日別統計`は毎日00:00、`現在の感染者数`は毎時00分にLINEにpostするよう設定されています。\
+これらを変更する場合は、`src/main.py`の35~38行目を schedule ライブラリを使用して変更してください。\
+
+例:
+
+```py
+# `現在の感染者数`の更新を6時から21時まで1時間毎に
+for hour in range(6, 21):
+    schedule.every().day.at(f'{hour:02d}:00').do(now_total, line_token=line_token, save_dir=save_dir)
+
+# `日別統計`を6時に
+schedule.every().day.at('06:00').do(today_total, line_token=line_token, save_dir=save_dir)
+```
+
+WebAPIは2時間毎に更新されるため1時間ごとに実行しても実際にpostされるのは2時間毎となります。
+
 ## ⚖️ LICENSE
 
 [MIT LICENSE](LICENSE)

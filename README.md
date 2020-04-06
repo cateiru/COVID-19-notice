@@ -26,6 +26,8 @@
 - MacOS
 - Ubuntu 18.04
 
+Windowsは動作未確認です。
+
 ## ⚙ 依存関係のインストール
 
 pipenvからインストール

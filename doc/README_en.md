@@ -26,6 +26,8 @@ Please check the Ministry of Health, Labor and Welfare and other public organiza
 - MacOS
 - Ubuntu 18.04
 
+Windows has not been tested.
+
 ## ⚙ Installing dependencies
 
 Install from pipenv

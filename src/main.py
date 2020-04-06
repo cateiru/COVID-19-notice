@@ -28,27 +28,15 @@ def main(line_token: str):
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
+    today_total(line_token, save_dir)
+    now_total(line_token, save_dir)
+
     schedule.every().day.at('00:00').do(today_total, line_token=line_token, save_dir=save_dir)
-    for hour in range(24):
-        schedule.every().day.at(f'{hour:02d}:00').do(now_total, line_token=line_token, save_dir=save_dir)
+    schedule.every().hour.do(now_total, line_token=line_token, save_dir=save_dir)
 
     while(True):  # pylint: disable=C0325
         schedule.run_pending()
         time.sleep(1)
-
-
-def connect(line_token: str, save_dir: str):
-    '''
-    複数のスプリクトを実行させる。
-    - Today total
-    - Now total
-
-    Args:
-        line_token (str): LINEのアクセストークン
-        save_dir (str): 一時データを保存するディレクトリパス
-    '''
-    today_total(line_token, save_dir)
-    now_total(line_token, save_dir)
 
 
 def today_total(line_token: str, save_dir: str):

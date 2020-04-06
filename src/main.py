@@ -4,14 +4,13 @@ Copyright 2020 YutoWatanabe
 import datetime
 import os
 import time
-from typing import Dict, List, Optional
+from typing import Dict, List, Union
 
 import click
-import numpy as np
-import requests
 import schedule
-from matplotlib import pyplot
 
+from communication import get_requests, post_line
+from graph import make_graph
 from json_operation import json_read, json_write
 
 
@@ -29,10 +28,10 @@ def main(line_token: str):
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
-    connect(line_token, save_dir)
+    schedule.every().day.at('00:00').do(today_total, line_token=line_token, save_dir=save_dir)
+    for hour in range(24):
+        schedule.every().day.at(f'{hour:02d}:00').do(now_total, line_token=line_token, save_dir=save_dir)
 
-    schedule.every().day.at('12:00').do(connect, line_token=line_token, save_dir=save_dir)
-    schedule.every().day.at('00:00').do(connect, line_token=line_token, save_dir=save_dir)
     while(True):  # pylint: disable=C0325
         schedule.run_pending()
         time.sleep(1)
@@ -101,10 +100,9 @@ def today_total(line_token: str, save_dir: str):
     * 人工呼吸・ICU: {body['severe']}人
     * 確認中: {body['confirming']}人
     * 待機中: {body['waiting']}人
-    * 症状有無確認中: {body['symtomConfirming']}人
   - 死亡: {body['death']}人
 
-  source by: https://covid-2019.live/'''
+source by: https://covid-2019.live/ '''
 
         make_graph(daily, graph_image_path)
         post_line(line_token, text, graph_image_path)
@@ -124,9 +122,9 @@ def now_total(line_token: str, save_dir: str):
         line_token (str): LINEのアクセストークン
         save_dir (str): 一時データを保存するディレクトリパス
     '''
-    body = get_requests('https://covid19-japan-web-api.now.sh/api/v1/prefectures')
+    body: List[Dict[str, Union[int, str]]] = get_requests('https://covid19-japan-web-api.now.sh/api/v1/prefectures')
 
-    save_file_path = os.path.join(save_dir, 'now_total.json')
+    save_file_path = os.path.join(save_dir, 'day_before.json')
     save_statistics = os.path.join(save_dir, 'now_infected.json')
 
     if os.path.isfile(save_file_path):
@@ -152,72 +150,14 @@ def now_total(line_token: str, save_dir: str):
             now = []
         now.append({'day': datetime.datetime.now().strftime(r'%Y%m%d-%H'), 'infected': total_patient})
 
-        text = f'\n⚠感染者数更新: {total_patient}人 ({difference:+})'
+        text = f'\n現在の感染者数: {total_patient}人\n(前日比: {difference:+})'
         post_line(line_token, text, None)
         save_body = {'patient': total_patient}
 
         json_write(save_body, save_file_path)
-        json_write(now, save_statistics)
 
-
-def make_graph(statistics: List[Dict[str, int]], image_save_path: str) -> None:
-    '''
-    国内の日別感染者数をグラフにして保存する
-
-    Args:
-        statistics (List[Dict[str, int]]): 感染者のデータ
-        image_save_path (str): 出力する画像を保存するパス
-    '''
-    x_value = []
-    y_value = []
-
-    for element in statistics:
-        day = datetime.datetime.strptime(str(element['day']), r'%Y%m%d')
-        x_value.append(f'{day.month}/{day.day}')
-        y_value.append(element['infected'])
-
-    x_loc = np.array(range(len(y_value)))
-
-    pyplot.title('Infected person graph')
-    pyplot.xlabel('date')
-    pyplot.ylabel('people')
-    pyplot.bar(x_loc, y_value, color='#fa6843')
-    pyplot.xticks(x_loc, x_value)
-
-    pyplot.savefig(image_save_path)
-
-
-def get_requests(link: str) -> Dict[str, int]:
-    '''
-    APIからデータを取得
-
-    Args:
-        link (str): リンク
-
-    Returns:
-        Dict[str, int]: 取得したデータ
-    '''
-    response = requests.get(link)
-    return response.json()
-
-
-def post_line(line_token: str, text: str, image_save_path: Optional[str]):
-    '''
-    LINE notifyにpostする
-
-    Args:
-        line_token (str): LINE notifyのアクセストークン
-        text (str): postする内容
-        image_save_path (Optional[str]): 画像のパス。Noneの場合はpostしない。
-    '''
-    line_access_url = 'https://notify-api.line.me/api/notify'
-    headers = {'Authorization': 'Bearer ' + line_token}
-    payload = {'message': text}
-    if image_save_path is None:
-        files = None
-    else:
-        files = {'imageFile': open(image_save_path, 'rb')}
-    requests.post(line_access_url, headers=headers, params=payload, files=files)
+        if datetime.datetime.now().strftime(r'%H') == '00':
+            json_write(now, save_statistics)
 
 
 if __name__ == "__main__":

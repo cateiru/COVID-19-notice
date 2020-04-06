@@ -4,7 +4,6 @@ Copyright 2020 YutoWatanabe
 import datetime
 import os
 import time
-from typing import Dict, List, Union
 
 import click
 import schedule
@@ -34,7 +33,7 @@ def main(line_token: str):
 
     # 実行するタイミングを変えたい場合はここを編集
     schedule.every().day.at('00:00').do(today_total, line_token=line_token, save_dir=save_dir)
-    schedule.every().minute.at(':00').do(now_total, line_token=line_token, save_dir=save_dir)
+    schedule.every(1).hours.do(now_total, line_token=line_token, save_dir=save_dir)
     # ここまで
 
     while(True):  # pylint: disable=C0325
@@ -84,7 +83,8 @@ def today_total(line_token: str, save_dir: str):
         text = f'''
 {day_obj.month}月{day_obj.day}日
 
-☣感染者: {body['positive']}人 (前日比: {difference:+})
+☣感染者: {body['positive']}人
+(前日比: {difference:+})
   - 退院: {body['discharge']}人
   - 入院中: {body['hospitalize']}人
     * 軽中度・無症状: {body['mild']}人
@@ -113,19 +113,18 @@ def now_total(line_token: str, save_dir: str):
         line_token (str): LINEのアクセストークン
         save_dir (str): 一時データを保存するディレクトリパス
     '''
-    body: List[Dict[str, Union[int, str]]] = get_requests('https://covid19-japan-web-api.now.sh/api/v1/prefectures')
+    body = get_requests('https://covid19-japan-web-api.now.sh/api/v1/prefectures')
 
     save_file_path = os.path.join(save_dir, 'day_before.json')
-    save_statistics = os.path.join(save_dir, 'now_infected.json')
 
     if os.path.isfile(save_file_path):
         old_patient = json_read(save_file_path)
         is_ratio = True
     else:
-        old_patient = {'patient': 0, 'before': 0}
+        old_patient = {'patient': 0, 'before': 0, 'date': None}
         is_ratio = False
 
-    total_patient: int = 0
+    total_patient = 0
     for body_metadata in body:
         total_patient += int(body_metadata['cases'])
 
@@ -135,22 +134,17 @@ def now_total(line_token: str, save_dir: str):
         else:
             difference = 0
 
-        if os.path.isfile(save_statistics):
-            now = json_read(save_statistics)
-        else:
-            now = []
-        now.append({'day': datetime.datetime.now().strftime(r'%Y%m%d-%H'), 'infected': total_patient})
-
         text = f'\n現在の感染者数: {total_patient}人\n(前日比: {difference:+})'
         post_line(line_token, text, None)
-        save_body_reset = {'patient': total_patient, 'before': total_patient}
-        old_patient['before'] = total_patient
 
-        json_write(now, save_statistics)
-        if datetime.datetime.now().strftime(r'%H') == '00':
-            json_write(save_body_reset, save_file_path)
+        date = datetime.datetime.now().strftime(r'%d')
+
+        if old_patient['date'] != date:
+            save_body_reset = {'patient': old_patient['before'], 'before': total_patient, 'date': date}
         else:
-            json_write(old_patient, save_file_path)
+            save_body_reset = {'patient': old_patient['patient'], 'before': total_patient, 'date': date}
+
+        json_write(save_body_reset, save_file_path)
 
 
 if __name__ == "__main__":

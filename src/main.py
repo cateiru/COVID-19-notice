@@ -142,10 +142,9 @@ def now_total(line_token: str, save_dir: str):
         post_line(line_token, text, None)
         save_body = {'patient': total_patient}
 
-        json_write(save_body, save_file_path)
-
+        json_write(now, save_statistics)
         if datetime.datetime.now().strftime(r'%H') == '00':
-            json_write(now, save_statistics)
+            json_write(save_body, save_file_path)
 
 
 if __name__ == "__main__":

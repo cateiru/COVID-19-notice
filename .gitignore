@@ -185,3 +185,5 @@ tags
 .history
 
 # End of https://www.gitignore.io/api/vim,linux,macos,python,visualstudiocode
+
+src/saves/

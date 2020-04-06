@@ -9,7 +9,8 @@
 
 ## TL;DR
 
-Send daily Japanese COVID-19 information summary to LINE.
+- At 00:00, the information on the COVID-19 infected person of the previous day will be sent to LINE notify.
+- The total number of infected people in the country is accessed on the WebAPI every hour and sent to LINE notify when it is updated.
 
 ## 🔍 Data source
 
@@ -17,7 +18,7 @@ Send daily Japanese COVID-19 information summary to LINE.
 
 ## ⚠️ Notes
 
-The data was collected by volunteers.
+The data was collected by volunteers.\
 Please check the Ministry of Health, Labor and Welfare and other public organizations for accurate data.
 
 ## 💻 Environment

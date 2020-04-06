@@ -9,15 +9,22 @@
 
 ## TL;DR
 
-毎日の日本のCOVID-19情報まとめをLINEに送信する。
+- 00:00に前日のCOVID-19の感染者の情報をLINE notifyに送信する。
+- 国内の感染者数合計を1時間おきにWebAPIにアクセスし、更新された場合LINE notifyに送信する。
 
 ## 🔍 データ取得先
 
 [covid19-japan-web-api](https://github.com/ryo-ma/covid19-japan-web-api)
 
+## ⚠️ 注意事項
+
+取得しているデータは有志が収集していただいたものです。
+正確なデータは厚生労働省などの公的機関をご確認ください。
+
 ## 💻 環境
 
 - MacOS
+- Ubuntu 18.4
 
 ## ⚙ 依存関係のインストール
 

@@ -11,6 +11,20 @@
 
 Send daily Japanese COVID-19 information summary to LINE.
 
+## 🔍 Data source
+
+[covid19-japan-web-api](https://github.com/ryo-ma/covid19-japan-web-api)
+
+## ⚠️ Notes
+
+The data was collected by volunteers.
+Please check the Ministry of Health, Labor and Welfare and other public organizations for accurate data.
+
+## 💻 Environment
+
+- MacOS
+- Ubuntu 18.04
+
 ## ⚙ Installing dependencies
 
 Install from pipenv

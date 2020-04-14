@@ -8,7 +8,7 @@ import numpy as np
 from matplotlib import pyplot
 
 
-def make_graph(statistics: List[Dict[str, int]], image_save_path: str) -> None:
+def make_graph(statistics: List[Dict[str, int]], image_save_path: str, title: str) -> None:
     '''
     国内の日別感染者数をグラフにして保存する
 
@@ -20,13 +20,20 @@ def make_graph(statistics: List[Dict[str, int]], image_save_path: str) -> None:
     y_value = []
 
     for element in statistics:
-        day = datetime.datetime.strptime(str(element['day']), r'%Y%m%d')
+        day = datetime.datetime.strptime(str(element['date']), r'%Y%m%d')
         x_value.append(f'{day.month}/{day.day}')
-        y_value.append(element['infected'])
+        y_value.append(element['positive'])
+
+    print(x_value)
+    print(y_value)
+
+    width = 6.4 * len(x_value) * 0.07
+    height = 4.8 * len(x_value) * 0.07
 
     x_loc = np.array(range(len(y_value)))
 
-    pyplot.title('Graph of the number of infected people by day')
+    pyplot.figure(figsize=(width, height))
+    pyplot.title(title)
     pyplot.xlabel('date')
     pyplot.ylabel('people')
     pyplot.bar(x_loc, y_value, color='#fa6843')

@@ -15,7 +15,7 @@ from json_operation import json_read, json_write
 
 @click.command()
 @click.option('--line-token', 'line_token', prompt=True, hide_input=True, help='line access token.')
-def main(line_token: str):
+def main(line_token: str) -> None:
     '''
     - 現在の感染者数: 1時間ごとに動作させる
     - 日別統計: 毎日00:00に動作させる
@@ -30,6 +30,9 @@ def main(line_token: str):
 
     # 実行するタイミングを変えたい場合はここを編集
     schedule.every().day.at('00:00').do(today_total, line_token=line_token, save_dir=save_dir)
+    schedule.every().day.at('00:00').do(total_history, line_token=line_token, save_dir=save_dir)
+    schedule.every().day.at('00:00').do(prediction, line_token=line_token, save_dir=save_dir)
+
     schedule.every(1).hours.do(now_total, line_token=line_token, save_dir=save_dir)
     # ここまで
 
@@ -38,7 +41,7 @@ def main(line_token: str):
         time.sleep(1)
 
 
-def today_total(line_token: str, save_dir: str):
+def today_total(line_token: str, save_dir: str) -> None:
     '''
     - 前回取得したデータと最新のデータを比較し日付が変わっている場合に
         - 前回取得したデータと最新の陽患者数の増加数の計算
@@ -58,8 +61,6 @@ def today_total(line_token: str, save_dir: str):
     day = body['date']
 
     save_file_path = os.path.join(save_dir, 'save.json')
-    daily_infections = os.path.join(save_dir, 'daily.json')
-    graph_image_path = os.path.join(save_dir, 'graph.png')
 
     if os.path.isfile(save_file_path):
         old_body = json_read(save_file_path)
@@ -70,16 +71,7 @@ def today_total(line_token: str, save_dir: str):
         difference = 0
 
     if day != old_day:
-        if os.path.isfile(daily_infections):
-            daily = json_read(daily_infections)
-        else:
-            daily = []
-
         day_obj = datetime.datetime.strptime(str(day), r'%Y%m%d')
-        daily.append({
-            'day': day,
-            'infected': difference
-        })
 
         text = f'''
 {day_obj.month}月{day_obj.day}日
@@ -96,17 +88,15 @@ def today_total(line_token: str, save_dir: str):
 
 source by: https://covid-2019.live/ '''
 
-        make_graph(daily, graph_image_path)
-        post_line(line_token, text, graph_image_path)
+        post_line(line_token, text, None)
         print(text)
         print('-' * 30)
         print('\n\n')
 
-        json_write(daily, daily_infections)
         json_write(body, save_file_path)
 
 
-def now_total(line_token: str, save_dir: str):
+def now_total(line_token: str, save_dir: str) -> None:
     '''
     感染者数の速報を通知する
 
@@ -146,6 +136,64 @@ def now_total(line_token: str, save_dir: str):
         old_patient['date'] = date
 
         json_write(old_patient, save_file_path)
+
+
+def total_history(line_token: str, save_dir: str) -> None:
+    '''
+    日別感染者数のグラフを作成します。
+
+    Args:
+        line_token (str): POSTするLINEのトークン
+        save_dir (str): 一時データを保存するディレクトリパス
+    '''
+    try:
+        body = get_requests('https://covid19-japan-web-api.now.sh/api/v1/total?history=true')
+    except Exception as error:
+        print(f'error:{error.args}')
+        return
+
+    history_path = os.path.join(save_dir, 'history.json')
+    graph_image_path = os.path.join(save_dir, 'graph.png')
+
+    if os.path.isfile(history_path):
+        old_body = json_read(history_path)
+    else:
+        old_body = []
+
+    if body != old_body:
+        make_graph(body, graph_image_path, 'Trends in the number of COVID-19 cases by day')
+        text = '日別感染者数の推移グラフ'
+        post_line(line_token, text, graph_image_path)
+        json_write(body, history_path)
+
+
+def prediction(line_token: str, save_dir: str) -> None:
+    '''
+    日別感染者数の【予測】グラフを作成します。
+
+    Args:
+        line_token (str): POSTするLINEのトークン
+        save_dir (str): 一時データを保存するディレクトリパス
+    '''
+    try:
+        body = get_requests('https://covid19-japan-web-api.now.sh/api/v1/total?predict=true')
+    except Exception as error:
+        print(f'error:{error.args}')
+        return
+
+    history_path = os.path.join(save_dir, 'history_prodiction.json')
+    graph_image_path = os.path.join(save_dir, 'graph_prodiction.png')
+
+    if os.path.isfile(history_path):
+        old_body = json_read(history_path)
+    else:
+        old_body = []
+
+    if body != old_body:
+        make_graph(body, graph_image_path, 'COVID - 19 days to measure the number of infected persons')
+        text = '日別感染者数の予測グラフ'
+        post_line(line_token, text, graph_image_path)
+        json_write(body, history_path)
 
 
 if __name__ == "__main__":

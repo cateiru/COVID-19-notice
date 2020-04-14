@@ -28,9 +28,6 @@ def main(line_token: str):
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
-    today_total(line_token, save_dir)
-    now_total(line_token, save_dir)
-
     # 実行するタイミングを変えたい場合はここを編集
     schedule.every().day.at('00:00').do(today_total, line_token=line_token, save_dir=save_dir)
     schedule.every(1).hours.do(now_total, line_token=line_token, save_dir=save_dir)
@@ -53,7 +50,11 @@ def today_total(line_token: str, save_dir: str):
         line_token (str): LINE notifyのアクセストークン
         save_dir (str): 一時データを保存するディレクトリパス
     '''
-    body = get_requests('https://covid19-japan-web-api.now.sh/api/v1/total')
+    try:
+        body = get_requests('https://covid19-japan-web-api.now.sh/api/v1/total')
+    except Exception as error:
+        print(f'error:{error.args}')
+        return
     day = body['date']
 
     save_file_path = os.path.join(save_dir, 'save.json')
@@ -113,7 +114,11 @@ def now_total(line_token: str, save_dir: str):
         line_token (str): LINEのアクセストークン
         save_dir (str): 一時データを保存するディレクトリパス
     '''
-    body = get_requests('https://covid19-japan-web-api.now.sh/api/v1/prefectures')
+    try:
+        body = get_requests('https://covid19-japan-web-api.now.sh/api/v1/prefectures')
+    except Exception as error:
+        print(f'error:{error.args}')
+        return
 
     save_file_path = os.path.join(save_dir, 'day_before.json')
 

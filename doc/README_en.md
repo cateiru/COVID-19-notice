@@ -77,7 +77,7 @@ Make sure you check all the tools successfully when you publish your PR.
 ## 🔁 Changing the timing of execution
 
 Currently, the `日別統計` are set to post to the LINE every day at 00:00 and the `現在の感染者数` is set to post to the LINE every hour at 00:00.\
-If you want to change them, modify lines 35-38 of `src/main.py` using the schedule library.\
+If you want to change them, modify lines 32-33 of `src/main.py` using the schedule library.\
 
 Example:
 

@@ -99,8 +99,9 @@ def today_total(line_token: str, save_dir: str) -> None:
 
 source by: https://covid-2019.live/ '''
 
-        post_line(line_token, text, None)
         make_graph(daily, graph_image_path, 'Number of infected persons per day')
+        post_line(line_token, text, graph_image_path)
+
         print(text)
         print('-' * 30)
         print('\n\n')

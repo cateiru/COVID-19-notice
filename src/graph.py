@@ -16,27 +16,27 @@ def make_graph(statistics: List[Dict[str, int]], image_save_path: str, title: st
         statistics (List[Dict[str, int]]): 感染者のデータ
         image_save_path (str): 出力する画像を保存するパス
     '''
-    x_value = []
     y_value = []
 
     for element in statistics:
-        day = datetime.datetime.strptime(str(element['date']), r'%Y%m%d')
-        x_value.append(f'{day.month}/{day.day}')
         y_value.append(element['positive'])
 
-    print(x_value)
-    print(y_value)
+    date_first = datetime.datetime.strptime(str(statistics[0]['date']), r'%Y%m%d')
+    date_end = datetime.datetime.strptime(str(statistics[-1]['date']), r'%Y%m%d')
 
-    width = 6.4 * len(x_value) * 0.07
-    height = 4.8 * len(x_value) * 0.07
+    text = f'({date_first.month}/{date_first.day}~{date_end.month}/{date_end.day})'
+
+    width = 6.4
+    height = 4.8
 
     x_loc = np.array(range(len(y_value)))
 
     pyplot.figure(figsize=(width, height))
-    pyplot.title(title)
+    pyplot.title(title + text)
     pyplot.xlabel('date')
     pyplot.ylabel('people')
     pyplot.bar(x_loc, y_value, color='#fa6843')
-    pyplot.xticks(x_loc, x_value)
+    pyplot.xticks(color="None")
+    pyplot.tick_params(length=0)
 
     pyplot.savefig(image_save_path)

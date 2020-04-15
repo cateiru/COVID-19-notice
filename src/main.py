@@ -61,6 +61,8 @@ def today_total(line_token: str, save_dir: str) -> None:
     day = body['date']
 
     save_file_path = os.path.join(save_dir, 'save.json')
+    daily_infections = os.path.join(save_dir, 'daily.json')
+    graph_image_path = os.path.join(save_dir, 'graph_dayly.png')
 
     if os.path.isfile(save_file_path):
         old_body = json_read(save_file_path)
@@ -71,7 +73,16 @@ def today_total(line_token: str, save_dir: str) -> None:
         difference = 0
 
     if day != old_day:
+        if os.path.isfile(daily_infections):
+            daily = json_read(daily_infections)
+        else:
+            daily = []
+
         day_obj = datetime.datetime.strptime(str(day), r'%Y%m%d')
+        daily.append({
+            'date': day,
+            'positive': difference
+        })
 
         text = f'''
 {day_obj.month}月{day_obj.day}日
@@ -89,10 +100,12 @@ def today_total(line_token: str, save_dir: str) -> None:
 source by: https://covid-2019.live/ '''
 
         post_line(line_token, text, None)
+        make_graph(daily, graph_image_path, 'Number of infected persons per day')
         print(text)
         print('-' * 30)
         print('\n\n')
 
+        json_write(daily, daily_infections)
         json_write(body, save_file_path)
 
 
@@ -161,7 +174,7 @@ def total_history(line_token: str, save_dir: str) -> None:
         old_body = []
 
     if body != old_body:
-        make_graph(body, graph_image_path, 'Trends in the number of COVID-19 cases by day')
+        make_graph(body, graph_image_path, 'Total number of infected persons')
         text = '日別感染者数の推移グラフ'
         post_line(line_token, text, graph_image_path)
         json_write(body, history_path)

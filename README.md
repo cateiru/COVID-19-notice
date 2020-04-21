@@ -1,7 +1,7 @@
 # 🦠 COVID-19 to LINE
 
 ![python](https://img.shields.io/github/pipenv/locked/python-version/yuto51942/COVID-19-notice)
-[![DeepSource](https://static.deepsource.io/deepsource-badge-dark-mini.svg)](https://deepsource.io/gh/yuto51942/COVID-19-notice/?ref=repository-badge)
+[![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/yuto51942/COVID-19-notice/?ref=repository-badge)
 ![last_commit](https://img.shields.io/github/last-commit/yuto51942/COVID-19-notice)
 
 🇯🇵| [🇺🇸](doc/README_en.md)
